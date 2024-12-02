@@ -34,7 +34,9 @@ GET http://10.0.2.15:8181/restconf/config/opendaylight-inventory:nodes/node/open
 
 # Use mininet and wireshark to perform/validate the loadbalancing
 Installation Tip:
+
 sudo usermod -aG wireshark username
+
 sudo chmod +x /usr/bin/dumpcap
 
 
