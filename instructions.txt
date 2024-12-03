@@ -1,0 +1,24 @@
+# Running OpenDaylight
+cd distribution-karaf-0.5.0-Boron/
+./bin/karaf
+
+feature:install odl-l2switch-switch
+feature:install odl-restconf odl-mdsal-apidocs odl-dlux-all
+
+#Creating and Running Custom Topoloy on Mininet
+sudo mn --custom topology.py --topo mytopo --controller=remote,10.0.2.15,port=6633 --switch ovs,protocols=OpenFlow13
+pingall
+
+#Running ODL Load_balancer
+python load_balancer_odl.py
+
+#Use Postman to visualize the flow rules and port mapping
+GET http://10.0.2.15:8181/restconf/config/opendaylight-inventory:nodes/node/openflow:21
+
+# Pushing a custom load (Example)
+
+h1 iperf -s
+h4 iperf -c h1 -n 1G
+
+# Visualizing and capturing packet in Wireshark
+sudo wireshark
