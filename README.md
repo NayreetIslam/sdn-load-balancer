@@ -36,8 +36,16 @@ GET http://10.0.2.15:8181/restconf/config/opendaylight-inventory:nodes/node/open
 Installation Tip:
 
 sudo usermod -aG wireshark username
-
 sudo chmod +x /usr/bin/dumpcap
+
+Consider you are performing a load balance testing between H1 to H4
+
+Push a custom 10Gb load
+h4 iperf -s &
+h1 iperf -c 10.0.0.4 -n 10G
+
+Use below filter in wireshark:
+(ip.dst == 10.0.0.4 && ip.src == 10.0.0.1) || (ip.dst == 10.0.0.1 && ip.src == 10.0.0.4)
 
 
 
