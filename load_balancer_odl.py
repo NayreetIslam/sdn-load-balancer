@@ -43,8 +43,8 @@ def topologyInformation(data):
 
 				if "host-tracker-service:addresses" in j:
 					for k in j["host-tracker-service:addresses"]:
-						ip = k["ip"].encode('ascii','ignore')
-						mac = k["mac"].encode('ascii','ignore')
+						ip = k["ip"]
+						mac = k["mac"]
 						deviceMAC[ip] = mac
 						deviceIP[mac] = ip
 
@@ -53,10 +53,10 @@ def topologyInformation(data):
 				if "host-tracker-service:attachment-points" in j:
 
 					for k in j["host-tracker-service:attachment-points"]:
-						mac = k["corresponding-tp"].encode('ascii','ignore')
+						mac = k["corresponding-tp"]
 						mac = mac.split(":",1)[1]
 						ip = deviceIP[mac]
-						temp = k["tp-id"].encode('ascii','ignore')
+						temp = k["tp-id"]
 						switchID = temp.split(":")
 						port = switchID[2]
 						hostPorts[ip] = port
@@ -68,23 +68,23 @@ def topologyInformation(data):
 		if "link" in i:
 			for j in i["link"]:
 				if "host" not in j['link-id']:
-					src = j["link-id"].encode('ascii','ignore').split(":")
+					src = j["link-id"].split(":")
 					srcPort = src[2]
-					dst = j["destination"]["dest-tp"].encode('ascii','ignore').split(":")
+					dst = j["destination"]["dest-tp"].split(":")
 					dstPort = dst[2]
 					srcToDst = src[1] + "::" + dst[1]
 					linkPorts[srcToDst] = srcPort + "::" + dstPort
 					G.add_edge((int)(src[1]),(int)(dst[1]))
 
 def getStats(data):
-	print "\nCost Computation....\n"
+	print("\nCost Computation....\n")
 	global cost
 	txRate = 0
 	for i in data["node-connector"]:
 		tx = int(i["opendaylight-port-statistics:flow-capable-node-connector-statistics"]["packets"]["transmitted"])
 		rx = int(i["opendaylight-port-statistics:flow-capable-node-connector-statistics"]["packets"]["received"])
 		txRate = tx + rx
-		#print txRate
+		#print(txRate)
 
 	time.sleep(2)
 
@@ -99,12 +99,12 @@ def getStats(data):
 		cost = cost + tx + rx - txRate
 
 	#cost = cost + txRate
-	#print cost
+	#print(cost)
 
 def systemCommand(cmd):
 	terminalProcess = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True)
 	terminalOutput, stderr = terminalProcess.communicate()
-	print "\n*** Flow Pushed\n"
+	print("\n*** Flow Pushed\n")
 
 # Push flow rules
 def pushFlowRules(bestPath):
@@ -120,9 +120,9 @@ def pushFlowRules(bestPath):
 			outport = outport[0]
 		else:
 			prevNode = bestPath[currentNode-1]
-			#print prevNode
+			#print(prevNode)
 			srcNode = bestPath[currentNode]
-			#print srcNode
+			#print(srcNode)
 			dstNode = bestPath[currentNode+1]
 			inport = linkPorts[prevNode + "::" + srcNode]
 			inport = inport.split("::")[1]
@@ -175,11 +175,11 @@ global h1,h2,h3
 h1 = ""
 h2 = ""
 
-print "Enter Host 1"
+print("Enter Host 1")
 h1 = int(input())
-print "\nEnter Host 2"
+print("\nEnter Host 2")
 h2 = int(input())
-print "\nEnter Host 3 (H2's Neighbour)"
+print("\nEnter Host 3 (H2's Neighbour)")
 h3 = int(input())
 
 h1 = "10.0.0." + str(h1)
@@ -229,27 +229,27 @@ while flag:
 		getResponse(topology,"topology")
 
 		# Print Device:MAC Info
-		print "\nDevice IP & MAC\n"
-		print deviceMAC
+		print("\nDevice IP & MAC\n")
+		print(deviceMAC)
 
 		# Print Switch:Device Mapping
-		print "\nSwitch:Device Mapping\n"
-		print switch
+		print("\nSwitch:Device Mapping\n")
+		print(switch)
 
 		# Print Host:Port Mapping
-		print "\nHost:Port Mapping To Switch\n"
-		print hostPorts
+		print("\nHost:Port Mapping To Switch\n")
+		print(hostPorts)
 
 		# Print Switch:Switch Port:Port Mapping
-		print "\nSwitch:Switch Port:Port Mapping\n"
-		print linkPorts
+		print("\nSwitch:Switch Port:Port Mapping\n")
+		print(linkPorts)
 
 		# Paths
-		print "\nAll Paths\n"
+		print("\nAll Paths\n")
 		#for path in nx.all_simple_paths(G, source=2, target=1):
 			#print(path)
 		for path in nx.all_shortest_paths(G, source=int(switch[h2].split(":",1)[1]), target=int(switch[h1].split(":",1)[1]), weight=None):
-			print path
+			print(path)
 
 		# Cost Computation
 		tmp = ""
@@ -268,15 +268,15 @@ while flag:
 			cost = 0
 			tmp = ""
 
-		print "\nFinal Link Cost\n"
-		print finalLinkTX
+		print("\nFinal Link Cost\n")
+		print(finalLinkTX)
 
 		shortestPath = min(finalLinkTX, key=finalLinkTX.get)
-		print "\n\nShortest Path: ",shortestPath
+		print("\n\nShortest Path: ",shortestPath)
 
 		pushFlowRules(shortestPath)
 
-		time.sleep(60)
+		time.sleep(600)
 	except KeyboardInterrupt:
 		break
 		exit
